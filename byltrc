@@ -1,0 +1,98 @@
+<?php
+/**
+ *  Файл представления Index - выводит сгенерированную движком информацию на главной странице магазина.
+ *  В этом файле доступны следующие данные:
+ *   <code>
+ *    $data['recommendProducts'] => Массив рекомендуемых товаров
+ *    $data['newProducts'] => Массив товаров новинок
+ *    $data['saleProducts'] => Массив товаров распродажи
+ *    $data['titleCategory'] => Название категории
+ *    $data['cat_desc'] => Описание категории
+ *    $data['meta_title'] => Значение meta тега для страницы
+ *    $data['meta_keywords'] => Значение meta_keywords тега для страницы
+ *    $data['meta_desc'] => Значение meta_desc тега для страницы
+ *    $data['currency'] => Текущая валюта магазина
+ *    $data['actionButton'] => тип кнопки в мини карточке товара
+ *   </code>
+ *
+ *   Получить подробную информацию о каждом элементе массива $data, можно вставив следующую строку кода в верстку файла.
+ *   <code>
+ *    <?php viewData($data['saleProducts']); ?>
+ *   </code>
+ *
+ *   Вывести содержание элементов массива $data, можно вставив следующую строку кода в верстку файла.
+ *   <code>
+ *    <?php echo $data['saleProducts']; ?>
+ *   </code>
+ *
+ *   <b>Внимание!</b> Файл предназначен только для форматированного вывода данных на страницу магазина. Категорически не рекомендуется выполнять в нем запросы к БД сайта или реализовывать сложную программную логику логику.
+ * @author Авдеев Марк <mark-avdeev@mail.ru>
+ * @package moguta.cms
+ * @subpackage Views
+ */
+// Установка значений в метатеги title, keywords, description.
+mgSEO($data);
+?>
+<?php
+// Функция console_log выводит php-массив, указанный параметром, в консоль браузера
+//console_log($data); ?>
+
+<?php component('promo-block', $data); ?>
+
+<div class="h-index-content">
+  <div class="basic-container">
+    <div class="h-index-content__shadow-wrapper">
+    <div class="h-index-content__wrapper">
+      <aside class="h-index-content__sidebar">
+        <?php 
+        if(MG::get('templateParams')['TIMER_SECTION']['checkbox_showTimer'] === 'true') {
+          component('timer-section');
+        }
+        ?>
+        <?php if(MG::get('templateParams')['SIDEBAR_BANNER']['checkbox_showBanner'] === 'true') { 
+          component('sidebar-banner');
+         } ?>
+        <?php 
+        if(MG::get('templateParams')['REVIEWS']['checkbox_showReviews'] === 'true') {
+          component('reviews-section');
+        }
+        ?>
+      </aside>
+      <div class="h-index-content__main">
+        <?php if (!empty($data['newProducts']) || !empty($data['recommendProducts']) || !empty($data['saleProducts'])) {
+          component('groups-tabs', $data);       
+        } ?>
+        <?php 
+
+          if(class_exists('trigger')) {
+            component('triggers'); 
+          }
+          if(MG::get('templateParams')['INDEX_BANNERS']['checkbox_bannersIndexShow'] === 'true') {
+            component('index-banners'); 
+          }
+          
+          if(class_exists('Blog')) {
+            component('blog-articles'); 
+          }
+        ?>
+      </div>
+      
+    </div>
+    <?php
+    // Если включен плагин брендов, то выводим его
+    if (class_exists('Brands')): 
+    mgAddMeta('components/plugins-style/brands.css');
+    ?>
+        [mg-brand]
+    <?php endif; ?>
+    <?php
+    // Если заполнено описание страницы, то выводим его
+    if (!empty($data['cat_desc'] )): ?>
+        <div class="h-index__desc">
+          <?php echo $data['cat_desc'] ?>
+        </div>
+    <?php endif; ?>
+      
+    </div>
+  </div>
+</div>
